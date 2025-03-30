@@ -3,17 +3,47 @@ import { CarService } from "./car.service";
 import { Car } from "./schema/car.schema";
 import { AutoComplete } from "src/common/dto/auto-complete.dto";
 import { AutoCompletePagination } from "src/common/dto/auto-complete-pagination.dto";
+import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 
+@ApiTags('Cars')
 @Controller('car')
 export class CarController {
     constructor(private readonly carService: CarService) { }
 
     @Get()
-    async findCars(): Promise<Car[]> {
-        return this.carService.getAllCars();
+    @ApiOperation({
+        summary: 'get all cars',
+        description: 'This end point use for get all cara',
+    })
+    async findCars(): Promise<Record<string, any>> {
+        try {
+            const cars = await this.carService.getAllCars();
+            return {
+                data: cars,
+                message: 'All cars find successfully',
+                errors: {}
+            }
+        } catch (error) {
+            console.error('Error fetching cars:', error);
+            return {
+                statusCode: error.status || 5000,
+                data: null,
+                message: error.message,
+                errors: error.response,
+            }
+        }
     }
 
     @Get('/autocomplete')
+    @ApiOperation({
+        summary: 'AutoComplete for user',
+        description: 'This end point use for autoComplete for user',
+    })
+    @ApiQuery({ name: 'query', required: false })
+    @ApiQuery({ name: 'label', required: true })
+    @ApiQuery({ name: 'value', required: true })
+    @ApiQuery({ name: 'limit', required: false })
+    @ApiQuery({ name: 'page', required: false })
     async autoComplete(
         // @Req() req: IRequest<JwtUser>,
         @Query() autoComplete: AutoComplete,

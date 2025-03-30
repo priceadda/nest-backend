@@ -4,13 +4,14 @@ import { Car } from "./schema/car.schema";
 import { Model, PipelineStage } from "mongoose";
 import { AutoCompletePagination } from "src/common/dto/auto-complete-pagination.dto";
 import { AutoComplete } from "src/common/dto/auto-complete.dto";
+import axios from "axios";
 
 @Injectable()
 export class CarService {
     constructor(@InjectModel(Car.name) private readonly carModel: Model<Car>) { }
 
     async getAllCars(): Promise<Car[]> {
-        return this.carModel.find().exec();
+        return await this.carModel.find().exec();
     }
 
     async autocomplete(autoComplete: AutoComplete,
@@ -46,7 +47,6 @@ export class CarService {
         if (cars.length < 2) {
             throw new NotFoundException({ car: ['At least two cars required'] });
         }
-
         return {
             comparedCars: cars.map(car => ({
                 Brand: car.Brand,
@@ -59,4 +59,25 @@ export class CarService {
             })),
         };
     }
+
+    // async fetchData() {
+    //     try {
+    //         let options = {
+    //             method: 'GET',
+    //             url: 'https://car-data.p.rapidapi.com/cars',
+    //             params: {
+    //                 limit: '10',
+    //                 page: '0'
+    //             },
+    //             headers: {
+    //                 'x-rapidapi-host': 'car-data.p.rapidapi.com',
+    //                 'x-rapidapi-key': 'YOUR_RAPIDAPI_KEY'
+    //             }
+    //         };
+    //         const response = await axios.request(options);
+    //         console.log(response.data);
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // }
 }
